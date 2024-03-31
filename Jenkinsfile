@@ -1,60 +1,21 @@
 pipeline {
-    agent any
-    tools {
-        maven 'MAVEN'
-        jdk 'JDK'
-    }
-    options {
-        timestamps ()
-       // ansiColor('xterm')
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-    }
-
-    triggers {
-        cron('0 6 * * 1-5')
-    }
-    
-    parameters {
-        string(name: 'TagName', defaultValue: "@employee", description: 'Scenario Tag to be run')
-    }
-    
+    agent any // { label 'master' }
     stages {
-        stage('Initialize') {
+        stage('build') {
             steps {
-                sh '''
-                    echo "PATH = ${PATH}"
-                    echo "M2_HOME = ${M2_HOME}"
-                '''
+                echo "Pipeline job with Jenkinsfile"
+                sh 'echo using shell within Jenkinsfile'
+                sh 'javac Hello.java'
+//                 sh 'java Hello'
+                echo 'not using shell in the Jenkinsfile'
             }
         }
-        stage('Build') {
+        stage('run') {
             steps {
-                sh "mvn -f pom.xml -B -DskipTests clean package"
-            }
-            post {
-                success {
-//                     echo "Now Archiving the Artifacts....."
-                    archiveArtifacts artifacts: '**/*.jar'
-                }
-            }
-        }
-        stage('Test') {
-            steps {
-                sh "mvn -f pom.xml test"
-                sh "mvn clean verify -Dbrowser=chrome-headless -Dcucumber.filter.tags='$params.TagName' -DfailIfNoTests=false"
-            }
-//             post {
-//                 always {
-//                     junit 'Cucumber-Mvn-Project/target/surefire-reports/*.xml'
-//                     html 'target/cucumber-report.html'
-//                 }
-//             }
-        }
-        stage('Cucumber Report') {
-            steps {
-                cucumber buildStatus: "UNSTABLE",
-                    fileIncludePattern: "**/cucumber.json",
-                    jsonReportDirectory: "target"
+                echo "Pipeline job with Jenkinsfile"
+                sh 'echo Running java file'
+                sh 'java Hello'
+                echo 'Java file run successfully!!!'
             }
         }
     }
